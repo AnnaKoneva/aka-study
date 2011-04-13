@@ -65,10 +65,7 @@ class TestHTTPServer:
 
         self.server.register(pattern, lambda request: request.reply(request.test, content_type='text/html'))
 
-
-
         reply, headers, body = self.client('GET', '/html/')
-
        
         eq_(body, 'hell world')
 
