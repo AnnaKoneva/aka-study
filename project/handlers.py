@@ -2,13 +2,14 @@ import os
 from serv import HTTPError
 
 
-def serve_static(address, root): 
+def serve_static(address, root):
 
     size = len(address)
+
     def pattern(request):
         return request.url.startswith(address)
 
-    def handler(request): 
+    def handler(request):
         try:
             fd = "%s/%s" % (root, request.url[size:])
             request.start_response(content_length=str(os.stat(fd).st_size))
