@@ -131,10 +131,7 @@ class TestHandlers(object):
         data = open('handlers.py').read()
         eq_(body, data)
 
-    def test_if_modified(self):
-        self.server.register(*serve_static(address='/', root="."))
-        t = time.ctime(time.mktime(time.gmtime()))
-        reply, headers, body = self.client('GET', '/handlers.py', if_modified_since=t)
+        reply, headers, body = self.client('GET', '/handlers.py', if_modified_since=headers['LAST-MODIFIED'])
         eq_(reply[1], '304')
 
     def test_parts_handlers(self):
