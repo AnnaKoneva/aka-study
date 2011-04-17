@@ -1,4 +1,4 @@
-import os
+import os, time
 from serv import HTTPError
 
 
@@ -10,9 +10,17 @@ def serve_static(address, root):
         return request.url.startswith(address)
 
     def handler(request):
+
+        fd = "%s/%s" % (root, request.url[size:])
+        stat = os.stat(fd)
+
+        if 'IF-MODIFIED-SINCE' in request.headers:
+            if time.mktime(time.strptime(request.headers['IF-MODIFIED-SINCE'], '%a, %d %b %Y %H:%I:%S GMT')) > stat.st_mtime:
+                request.reply('', '304', 'Not modified')
+                return
+
         try:
-            fd = "%s/%s" % (root, request.url[size:])
-            request.start_response(content_length=str(os.stat(fd).st_size))
+            request.start_response(content_length=str(stat.st_size))
             return open(fd)
 
         except IOError:
