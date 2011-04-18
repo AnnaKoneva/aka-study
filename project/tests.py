@@ -3,6 +3,7 @@ from handlers import serve_static
 from nose.tools import eq_, raises
 from coverage import coverage
 from cStringIO import StringIO
+import time
 
 
 class MockConnection:
@@ -121,16 +122,17 @@ class TestHTTPServer:
 class TestHandlers(object):
 
     def setup(self):
-
         self.server = HTTPServer(debug=True)
         self.client = MockClient(self.server)
 
     def test_static(self):
-
         self.server.register(*serve_static(address='/', root="."))
         reply, headers, body = self.client('GET', '/handlers.py')
         data = open('handlers.py').read()
         eq_(body, data)
+
+        reply, headers, body = self.client('GET', '/handlers.py', if_modified_since=headers['LAST-MODIFIED'])
+        eq_(reply[1], '304')
 
     def test_parts_handlers(self):
         self.server.register(lambda r: True, lambda r: ["123", "456", "789"])
